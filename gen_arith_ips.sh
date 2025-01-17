@@ -2,47 +2,61 @@ OUTDIR="./xls_output"
 rm -f $OUTDIR/*.v
 mkdir -p $OUTDIR
 
+# Remember to "bash fetch_xls_release.sh" before
 
-RUN_COMMON="python3 run_xls.py --cg_reset rst --cg_flop_inputs false"
+run_xls () {
 
-$RUN_COMMON --cg_pipeline_stages 9 ./xls_float_ips.x addf32
-$RUN_COMMON --cg_pipeline_stages 9 ./xls_float_ips.x subf32
-$RUN_COMMON --cg_pipeline_stages 4 ./xls_float_ips.x mulf32
-$RUN_COMMON --cg_pipeline_stages 36 ./xls_float_ips.x divsi32
-$RUN_COMMON --cg_pipeline_stages 36 ./xls_float_ips.x divui32
-$RUN_COMMON --cg_pipeline_stages 30 ./xls_float_ips.x divf32
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OEQ
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OGT
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OGE
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OLE
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OLT
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_UEQ
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_UGT
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_UGE
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_ULE
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_ULT
-$RUN_COMMON --cg_pipeline_stages 5 ./xls_float_ips.x sitofp
-$RUN_COMMON --cg_pipeline_stages 5 ./xls_float_ips.x fptosi
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x extf
+  F_DSLX=$1
+  MODULE_NAME=$2
+  PIPELINE_STAGES=$3
 
-cp /tmp/addf32.v $OUTDIR
-cp /tmp/subf32.v $OUTDIR
-cp /tmp/mulf32.v $OUTDIR
-cp /tmp/divsi32.v $OUTDIR
-cp /tmp/divui32.v $OUTDIR
-cp /tmp/divf32.v $OUTDIR
-cp /tmp/cmpf32_OEQ.v $OUTDIR
-cp /tmp/cmpf32_OGT.v $OUTDIR
-cp /tmp/cmpf32_OGE.v $OUTDIR
-cp /tmp/cmpf32_OLE.v $OUTDIR
-cp /tmp/cmpf32_OLT.v $OUTDIR
-cp /tmp/cmpf32_UEQ.v $OUTDIR
-cp /tmp/cmpf32_UGT.v $OUTDIR
-cp /tmp/cmpf32_UGE.v $OUTDIR
-cp /tmp/cmpf32_ULE.v $OUTDIR
-cp /tmp/cmpf32_ULT.v $OUTDIR
-cp /tmp/fptosi.v $OUTDIR
-cp /tmp/sitofp.v $OUTDIR
-cp /tmp/extf.v $OUTDIR
+  F_XLS_IR=/tmp/$MODULE_NAME.ir
+  F_XLS_IR_OPT=/tmp/$MODULE_NAME.opt.ir
+  F_XLS_V=/tmp/$MODULE_NAME.v
+
+  ./xls-v*.*.*/ir_converter_main \
+    --dslx_stdlib_path ./xls-v*/xls/dslx/stdlib \
+    --top=$MODULE_NAME --package_name="" \
+    $F_DSLX > $F_XLS_IR
+
+  ./xls-v*.*.*/opt_main \
+    $F_XLS_IR \
+    > $F_XLS_IR_OPT
+
+  ./xls-v*.*.*/codegen_main \
+    --reset=rst \
+    --pipeline_stages=$PIPELINE_STAGES \
+    --delay_model=unit \
+    --use_system_verilog=false \
+    --flop_inputs=false \
+    --multi_proc \
+    --module_name="xls_float_ips__"$MODULE_NAME \
+    --streaming_channel_valid_suffix="_vld" \
+    --streaming_channel_ready_suffix="_rdy" \
+    $F_XLS_IR_OPT \
+    > $F_XLS_V
+
+  cp $F_XLS_V $OUTDIR
+}
+
+run_xls ./xls_float_ips.x addf32 9
+run_xls ./xls_float_ips.x subf32 9
+run_xls ./xls_float_ips.x mulf32 4
+run_xls ./xls_float_ips.x divsi32 36
+run_xls ./xls_float_ips.x divui32 36
+run_xls ./xls_float_ips.x divf32 30
+run_xls ./xls_float_ips.x cmpf32_OEQ 1
+run_xls ./xls_float_ips.x cmpf32_OGT 1
+run_xls ./xls_float_ips.x cmpf32_OGE 1
+run_xls ./xls_float_ips.x cmpf32_OLE 1
+run_xls ./xls_float_ips.x cmpf32_OLT 1
+run_xls ./xls_float_ips.x cmpf32_UEQ 1
+run_xls ./xls_float_ips.x cmpf32_UGT 1
+run_xls ./xls_float_ips.x cmpf32_UGE 1
+run_xls ./xls_float_ips.x cmpf32_ULE 1
+run_xls ./xls_float_ips.x cmpf32_ULT 1
+run_xls ./xls_float_ips.x sitofp 5
+run_xls ./xls_float_ips.x fptosi 5
+run_xls ./xls_float_ips.x extf 1
 
 cat $OUTDIR/*.v > $OUTDIR/xls_float_ip.v
