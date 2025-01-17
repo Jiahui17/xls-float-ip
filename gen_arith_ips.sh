@@ -30,7 +30,7 @@ run_xls () {
     --use_system_verilog=false \
     --flop_inputs=false \
     --multi_proc \
-    --module_name="xls_float_ips__"$MODULE_NAME \
+    --module_name="xls_float_ips__"$MODULE_NAME"_0_next" \
     --streaming_channel_valid_suffix="_vld" \
     --streaming_channel_ready_suffix="_rdy" \
     $F_XLS_IR_OPT \
