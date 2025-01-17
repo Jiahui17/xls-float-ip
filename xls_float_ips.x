@@ -262,3 +262,143 @@ proc xls_cmpf32_OLT {
     }
 }
 
+proc xls_cmpf32_UEQ {
+
+    lhs: chan<F32> in;
+    rhs: chan<F32> in;
+    res: chan<u1> out;
+
+    init { () } 
+
+    config(lhs: chan<F32> in, rhs: chan<F32> in, res: chan<u1> out) {
+        (lhs, rhs, res)
+    }
+
+    next(_ : ()) {
+        let (tok_a, a) = recv(join(), lhs);
+        let (tok_b, b) = recv(join(), rhs);
+        // Returns 1 if any of the input is undefined.
+        let sum = if (apfloat::is_nan(a) || apfloat::is_nan(b)) { u1:1 } else {apfloat::eq_2(a,b)};
+        send(join(tok_a, tok_b), res, sum);
+    }
+}
+
+proc xls_cmpf32_UGT {
+
+    lhs: chan<F32> in;
+    rhs: chan<F32> in;
+    res: chan<u1> out;
+
+    init { () } 
+
+    config(lhs: chan<F32> in, rhs: chan<F32> in, res: chan<u1> out) {
+        (lhs, rhs, res)
+    }
+
+    next(_ : ()) {
+        let (tok_a, a) = recv(join(), lhs);
+        let (tok_b, b) = recv(join(), rhs);
+        // Returns 1 if any of the input is undefined.
+        let sum = if (apfloat::is_nan(a) || apfloat::is_nan(b) {u1:1} else {apfloat::gt_2(a,b)});
+        send(join(tok_a, tok_b), res, sum);
+    }
+}
+
+proc xls_cmpf32_UGE {
+
+    lhs: chan<F32> in;
+    rhs: chan<F32> in;
+    res: chan<u1> out;
+
+    init { () } 
+
+    config(lhs: chan<F32> in, rhs: chan<F32> in, res: chan<u1> out) {
+        (lhs, rhs, res)
+    }
+
+    next(_ : ()) {
+        let (tok_a, a) = recv(join(), lhs);
+        let (tok_b, b) = recv(join(), rhs);
+        // Returns 1 if any of the input is undefined.
+        let sum = if (apfloat::is_nan(a) || apfloat::is_nan(b) {u1:1} else {apfloat::gte_2(a,b)});
+        send(join(tok_a, tok_b), res, sum);
+    }
+}
+
+proc xls_cmpf32_ULE {
+
+    lhs: chan<F32> in;
+    rhs: chan<F32> in;
+    res: chan<u1> out;
+
+    init { () } 
+
+    config(lhs: chan<F32> in, rhs: chan<F32> in, res: chan<u1> out) {
+        (lhs, rhs, res)
+    }
+
+    next(_ : ()) {
+        let (tok_a, a) = recv(join(), lhs);
+        let (tok_b, b) = recv(join(), rhs);
+        // Returns 1 if any of the input is undefined.
+        let sum = if (apfloat::is_nan(a) || apfloat::is_nan(b) {u1:1} else {apfloat::lte_2(a,b)});
+        send(join(tok_a, tok_b), res, sum);
+    }
+}
+
+proc xls_cmpf32_ULT {
+
+    lhs: chan<F32> in;
+    rhs: chan<F32> in;
+    res: chan<u1> out;
+
+    init { () } 
+
+    config(lhs: chan<F32> in, rhs: chan<F32> in, res: chan<u1> out) {
+        (lhs, rhs, res)
+    }
+
+    next(_ : ()) {
+        let (tok_a, a) = recv(join(), lhs);
+        let (tok_b, b) = recv(join(), rhs);
+        // Returns 1 if any of the input is undefined.
+        let sum = if (apfloat::is_nan(a) || apfloat::is_nan(b) {u1:1} else {apfloat::lt_2(a,b)});
+        send(join(tok_a, tok_b), res, sum);
+    }
+}
+
+proc xls_sitofp {
+
+    ins: chan<s32> in;
+    outs: chan<F32> out;
+
+    init { () } 
+
+    config(ins: chan<F32> in, outs: chan<u1> out) {
+        (ins, outs)
+    }
+
+    next(_ : ()) {
+        let (tok_a, a) = recv(join(), ins);
+        // Returns 1 if any of the input is undefined.
+        send(join(tok_a), outs, float32::from_int32(a));
+    }
+}
+
+proc xls_fptosi {
+
+    ins: chan<F32> in;
+    outs: chan<s32> out;
+
+    init { () } 
+
+    config(ins: chan<F32> in, outs: chan<u1> out) {
+        (ins, outs)
+    }
+
+    next(_ : ()) {
+        let (tok_a, a) = recv(join(), ins);
+        // Returns 1 if any of the input is undefined.
+        send(join(tok_a), outs, float32::to_int32(a));
+    }
+}
