@@ -62,6 +62,7 @@ parser.add_argument("--cg_reset", required=False, default="reset")
 parser.add_argument("--cg_pipeline_stages", required=False)
 parser.add_argument("--cg_clock_period_ps", required=False)
 parser.add_argument("--cg_worst_case_throughput", required=False)
+parser.add_argument("--cg_flop_inputs", required=False)
 parser.add_argument("--cg_delay_model", required=False, default="unit")
 
 group_sim_func = parser.add_argument_group("simulate")
@@ -130,6 +131,7 @@ cmd(
         xls_bins / "codegen_main",
         f"--reset={args.cg_reset}",
         f"--delay_model={args.cg_delay_model}",
+        f"--flop_inputs={args.cg_flop_inputs}",
         f"--output_signature_path={signature_file}",
         f"--output_verilog_path={verilog_file}",
         f"--multi_proc",

@@ -2,41 +2,47 @@ OUTDIR="./xls_output"
 rm -f $OUTDIR/*.v
 mkdir -p $OUTDIR
 
-RUN_COMMON="python3 run_xls.py --cg_reset rst"
 
-$RUN_COMMON --cg_pipeline_stages 9 ./xls_float_ips.x xls_addf32
-$RUN_COMMON --cg_pipeline_stages 9 ./xls_float_ips.x xls_subf32
-$RUN_COMMON --cg_pipeline_stages 32 ./xls_float_ips.x xls_divsi32
-$RUN_COMMON --cg_pipeline_stages 32 ./xls_float_ips.x xls_divui32
-$RUN_COMMON --cg_pipeline_stages 32 ./xls_float_ips.x xls_divf32
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x xls_cmpf32_OEQ
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x xls_cmpf32_OGT
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x xls_cmpf32_OGE
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x xls_cmpf32_OLE
-$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x xls_cmpf32_OLT
+RUN_COMMON="python3 run_xls.py --cg_reset rst --cg_flop_inputs false"
 
-cp /tmp/xls_addf32.v $OUTDIR
-cp /tmp/xls_subf32.v $OUTDIR
-cp /tmp/xls_divsi32.v $OUTDIR
-cp /tmp/xls_divui32.v $OUTDIR
-cp /tmp/xls_divf32.v $OUTDIR
-cp /tmp/xls_cmpf32_OEQ.v $OUTDIR
-cp /tmp/xls_cmpf32_OGT.v $OUTDIR
-cp /tmp/xls_cmpf32_OGE.v $OUTDIR
-cp /tmp/xls_cmpf32_OLE.v $OUTDIR
-cp /tmp/xls_cmpf32_OLT.v $OUTDIR
+$RUN_COMMON --cg_pipeline_stages 9 ./xls_float_ips.x addf32
+$RUN_COMMON --cg_pipeline_stages 9 ./xls_float_ips.x subf32
+$RUN_COMMON --cg_pipeline_stages 4 ./xls_float_ips.x mulf32
+$RUN_COMMON --cg_pipeline_stages 36 ./xls_float_ips.x divsi32
+$RUN_COMMON --cg_pipeline_stages 36 ./xls_float_ips.x divui32
+$RUN_COMMON --cg_pipeline_stages 30 ./xls_float_ips.x divf32
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OEQ
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OGT
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OGE
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OLE
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_OLT
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_UEQ
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_UGT
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_UGE
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_ULE
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x cmpf32_ULT
+$RUN_COMMON --cg_pipeline_stages 5 ./xls_float_ips.x sitofp
+$RUN_COMMON --cg_pipeline_stages 5 ./xls_float_ips.x fptosi
+$RUN_COMMON --cg_pipeline_stages 1 ./xls_float_ips.x extf
 
-SED='s/(__)?xls_float_ips__//g;s/vld/valid/g;s/rdy/ready/g;s/_0_next\(/\(/g'
+cp /tmp/addf32.v $OUTDIR
+cp /tmp/subf32.v $OUTDIR
+cp /tmp/mulf32.v $OUTDIR
+cp /tmp/divsi32.v $OUTDIR
+cp /tmp/divui32.v $OUTDIR
+cp /tmp/divf32.v $OUTDIR
+cp /tmp/cmpf32_OEQ.v $OUTDIR
+cp /tmp/cmpf32_OGT.v $OUTDIR
+cp /tmp/cmpf32_OGE.v $OUTDIR
+cp /tmp/cmpf32_OLE.v $OUTDIR
+cp /tmp/cmpf32_OLT.v $OUTDIR
+cp /tmp/cmpf32_UEQ.v $OUTDIR
+cp /tmp/cmpf32_UGT.v $OUTDIR
+cp /tmp/cmpf32_UGE.v $OUTDIR
+cp /tmp/cmpf32_ULE.v $OUTDIR
+cp /tmp/cmpf32_ULT.v $OUTDIR
+cp /tmp/fptosi.v $OUTDIR
+cp /tmp/sitofp.v $OUTDIR
+cp /tmp/extf.v $OUTDIR
 
-sed -i -E $SED $OUTDIR/xls_addf32.v
-sed -i -E $SED $OUTDIR/xls_subf32.v
-sed -i -E $SED $OUTDIR/xls_divsi32.v
-sed -i -E $SED $OUTDIR/xls_divui32.v
-sed -i -E $SED $OUTDIR/xls_divf32.v
-sed -i -E $SED $OUTDIR/xls_cmpf32_OEQ.v
-sed -i -E $SED $OUTDIR/xls_cmpf32_OGT.v
-sed -i -E $SED $OUTDIR/xls_cmpf32_OGE.v
-sed -i -E $SED $OUTDIR/xls_cmpf32_OLE.v
-sed -i -E $SED $OUTDIR/xls_cmpf32_OLT.v
-
-cat $OUTDIR/xls_*.v > $OUTDIR/xls_float_ip.v
+cat $OUTDIR/*.v > $OUTDIR/xls_float_ip.v
